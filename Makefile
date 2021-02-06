@@ -1,57 +1,38 @@
 .PHONY: all test clean
 
+name ?= auth_api
+pg_host ?= $(shell docker inspect pg | jq .[0].NetworkSettings.Networks.bridge.IPAddress || echo "no-container")
+
 build:
-		@echo "\033[1;32m. . . Building Menu API image . . .\033[1;37m\n"
-		docker build -t menu_api .
+		@echo "\033[1;32m. . . Building Auth API image . . .\033[1;37m\n"
+		docker build -t $(name) .
 
 build_no_cache:
-		docker build -t menu_api . --no-cache=true
+		docker build -t $(name) . --no-cache=true
 
 publish: build
-		docker tag menu_api jalgraves/menu_api
-		docker push jalgraves/menu_api
+		docker tag $(name) jalgraves/$(name)
+		docker push jalgraves/$(name)
 
 start:
-		@echo "\033[1;32m. . . Starting Menu API container . . .\033[1;37m\n"
+		@echo "\033[1;32m. . . Starting Auth API container . . .\033[1;37m\n"
 		docker run \
-			--name menu_api \
+			--name $(name) \
 			--restart always \
-			-p "5004:5004" \
-			-e MONGO_HOST=${MONGO_REMOTE} \
-			-e MONGO_PW=${MENU_API_MONGO_PW} \
-			-e MONGO_USER=${MENU_API_MONGO_USER} \
-			-e MONGO_DB=${MENU_API_DB} \
-			menu_api
+			-p "5045:5045" \
+			-e AUTH_DB=${AUTH_DB} \
+			-e AUTH_DB_USER=${AUTH_DB_USER} \
+			-e AUTH_DB_PW=${AUTH_DB_PW} \
+			-e AUTH_DB_HOST=$(pg_host) \
+			-e API_USER_PW=${API_PW} \
+			$(name)
 
 stop:
-		docker rm -f menu_api || true
+		docker rm -f $(name) || true
 
-redis:
-		docker run -d --name red -p "6379:6379" --restart always redis
 
-mongo:
-		@echo "\033[1;32m. . . Starting MongoDB container . . .\n"
-		mkdir -p ${PWD}/data || true
-		docker run \
-			-d \
-			-p 27017-27019:27017-27019 \
-			-e MONGO_INITDB_ROOT_PASSWORD=${MENU_API_MONGO_PW} \
-			-e MONGO_INITDB_ROOT_USERNAME=${MENU_API_MONGO_USER} \
-			-v ${PWD}/data:/data/db \
-			--name mongodb \
-			--restart always \
-			mongo:4.0.13-xenial
-
-mongo_no_auth:
-		@echo "\033[1;32m. . . Starting MongoDB container . . .\033[1;37m\n"
-		mkdir -p ${PWD}/data || true
-		docker run \
-			-d \
-			-p 27017-27019:27017-27019 \
-			-v ${PWD}/data:/data/db \
-			--name mongodb \
-			--restart always \
-			mongo:4.0.13-xenial
+compile:
+		pip-compile requirements.ini
 
 clean:
 		rm -rf api/__pycache__ || true

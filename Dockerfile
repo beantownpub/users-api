@@ -1,8 +1,10 @@
-FROM python:3.7-slim-buster
+FROM python:3.8-slim-buster
 
 ENV TINI_VERSION v0.18.0
 
-RUN apt-get update -y && pip install -U pip
+RUN apt-get update -y && \
+    apt-get install -y postgresql libpq-dev gcc && \
+    pip install -U pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
@@ -20,6 +22,6 @@ ENTRYPOINT ["/tini", "-s", "--"]
 
 WORKDIR /opt/app
 
-EXPOSE 5004
+EXPOSE 5045
 
-CMD ["gunicorn", "-w 2", "-b :5004", "server:APP"]
+CMD ["gunicorn", "-w 1", "-b :5045", "server:APP"]
