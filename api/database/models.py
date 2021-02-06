@@ -1,51 +1,13 @@
+from datetime import datetime
 from .db import db
 
 
-class MenuItem(db.Document):
-    name = db.StringField(max_length=120)
-    category = db.StringField()
-    description = db.StringField()
-    price = db.FloatField()
-    is_active = db.BooleanField(default=True)
-    location = db.StringField()
-    meta = {'allow_inheritance': True}
+class Account(db.Model):
+    __tablename__ = 'accounts'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password_hash = db.Column(db.String(120), unique=False, nullable=False)
+    creation_date = db.Column(db.DateTime, default=datetime.utcnow)
 
-    @property
-    def slug(self):
-        slug = self.name.lower().replace(' ', '-')
-        return slug
-
-
-class CateringItem(db.Document):
-    name = db.StringField()
-    description = db.StringField()
-    category = db.StringField()
-    is_active = db.BooleanField(default=True)
-
-
-class CateringCategory(db.Document):
-    name = db.StringField()
-    description = db.StringField()
-    is_active = db.BooleanField(default=True)
-    items = db.ListField(db.ReferenceField(CateringItem))
-
-
-class Drinks(db.Document):
-    name = db.StringField(max_length=120)
-    category = db.StringField()
-    description = db.StringField()
-    is_active = db.BooleanField(default=True)
-    location = db.StringField()
-    meta = {'allow_inheritance': True}
-
-    @property
-    def slug(self):
-        slug = self.name.lower().replace(' ', '-')
-        return slug
-
-
-class Users(db.Document):
-    username = db.StringField(max_length=120)
-    password = = db.StringField(max_length=60)
-    is_active = db.BooleanField(default=True)
-    meta = {'allow_inheritance': True}
+    def __repr__(self):
+        return '<User %r>' % self.username
