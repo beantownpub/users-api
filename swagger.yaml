@@ -1,0 +1,101 @@
+openapi: 3.0.0
+info:
+  version: 0.1.0
+  title: Users API
+  description: An API for authorizing users
+
+servers:
+  - url: http://users-api/v1
+
+security:
+  - BasicAuth: []
+
+paths:
+  /auth:
+    post:
+      description: Verify account status and login
+      parameters:
+        - $ref: '#/components/parameters/PageLimit'
+        - $ref: '#/components/parameters/PageOffset'
+      responses:
+        '200':
+          description: Successfully logged in
+        '400':
+          $ref: '#/components/responses/400Error'
+        '401':
+          $ref: '#/components/responses/401Error'
+
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    MenuItem:
+      type: object
+      required:
+        - username
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        price:
+          type: string
+        is_active:
+          type: any
+        category:
+          type: string
+    Category:
+      type: object
+      required:
+        - username
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        price:
+          type: string
+        is_active:
+          type: any
+        category:
+          type: string
+  parameters:
+    PageLimit:
+      name: limit
+      in: query
+      description: Limits the number of items on a page
+      schema:
+        type: integer
+
+    PageOffset:
+      name: offset
+      in: query
+      description: Specifies the page number of the messages to be displayed
+      schema:
+        type: integer
+
+  responses:
+    400Error:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+    401Error:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string

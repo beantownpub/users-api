@@ -13,9 +13,9 @@ APP_NAME = __name__.split('.')[0]
 APP = Flask(APP_NAME, instance_path='/opt/app/api', root_path='/opt/app/api')
 API = Api(APP)
 PSQL = {
-    'user': os.environ.get('AUTH_DB_USER', 'jalbot'),
-    'password': os.environ.get('AUTH_DB_PW'),
-    'host': os.environ.get('AUTH_DB_HOST', 'localhost')
+    'user': os.environ.get('DB_USER', 'jalbot'),
+    'password': os.environ.get('DB_PASSWORD'),
+    'host': os.environ.get('DB_HOST', 'localhost')
 }
 
 

@@ -1,8 +1,6 @@
 import os
 import logging
 
-import psycopg2.OperationalError
-
 from flask import Response, request, session
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import Resource
@@ -23,7 +21,7 @@ if __name__ != '__main__':
 
 @AUTH.verify_password
 def verify_password(username, password):
-    if password == os.environ.get("API_USER_PW"):
+    if password == os.environ.get("API_PASSWORD"):
         return True
     return False
 
@@ -50,10 +48,6 @@ def delete_account(username):
 def get_account(username):
     if len(session.keys()) > 0:
         app_log.info('Session Keys: %s', session.keys())
-    try:
-        account = Account.query.filter_by(username=username).first()
-    except psycopg2.OperationalError:
-        app_log.error('Database Error')
         account = Account.query.filter_by(username=username).first()
     if account:
         info = {
