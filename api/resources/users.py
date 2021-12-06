@@ -17,20 +17,27 @@ if __name__ != '__main__':
     gunicorn_logger = logging.getLogger('gunicorn.error')
     app_log.handlers = gunicorn_logger.handlers
     app_log.setLevel('INFO')
+    app_log.info('LOGGER STARTED')
+    # create_default_user()
 
 
 @AUTH.verify_password
 def verify_password(username, password):
-    if password == os.environ.get("API_PASSWORD"):
+    app_log.info("Verifying Username: %s", username)
+    password = password.strip("\n")
+    api_password = os.environ.get("API_PASSWORD").strip("\n")
+    if password.strip("\n") == api_password:
         return True
+    app_log.info("User %s not authorized", username)
     return False
 
 
 def create_account(request):
     body = request.get_json()
+    email = body['email']
     username = body['username']
     password = generate_password_hash(body['password'])
-    acct = Account(username=username, password_hash=password)
+    acct = Account(email=email, username=username, password_hash=password)
     db.session.add(acct)
     db.session.commit()
     account = get_account(username)
@@ -48,9 +55,10 @@ def delete_account(username):
 def get_account(username):
     if len(session.keys()) > 0:
         app_log.info('Session Keys: %s', session.keys())
-        account = Account.query.filter_by(username=username).first()
+    account = Account.query.filter_by(username=username).first()
     if account:
         info = {
+            'email': account.email,
             'id': account.id,
             'username': account.username,
             'password_hash': account.password_hash
