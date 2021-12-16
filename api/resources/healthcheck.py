@@ -1,7 +1,4 @@
-import os
-
-from flask import Response, request, session
-from flask_httpauth import HTTPBasicAuth
+from flask import Response
 from flask_restful import Resource
 
 

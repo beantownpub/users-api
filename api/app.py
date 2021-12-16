@@ -38,21 +38,16 @@ app_log.info('DBs initialized')
 init_routes(API)
 app_log.info('Routes initialized')
 
-if __name__ != '__main__':
-    pass
-    # gunicorn_logger = logging.getLogger('gunicorn.error')
-    # app_log.handlers = gunicorn_logger.handlers
-    # app_log.setLevel('INFO')
-
 
 @APP.before_first_request
 def create_default_user():
     app_log.info('Creating default user')
-    username = os.environ.get('DEFAULT_API_USERNAME')
-    password = os.environ.get('DEFAULT_API_PASSWORD')
+    email = os.environ.get('DEFAULT_ADMIN_EMAIL')
+    username = os.environ.get('DEFAULT_ADMIN_USER')
+    password = os.environ.get('DEFAULT_ADMIN_PASS')
     account = Account.query.filter_by(username=username).first()
     if not account:
-        account = Account(username=username, password_hash=generate_password_hash(password))
+        account = Account(username=username, email=email, password_hash=generate_password_hash(password))
         db.session.add(account)
         db.session.commit()
         app_log.info('User %s created', username)
