@@ -1,2 +1,2 @@
-# users_api
+# users-api
 Authentication API
