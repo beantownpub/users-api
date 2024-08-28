@@ -1,0 +1,6 @@
+dependencies:
+- name: psql
+  repository: https://beantownpub.github.io/helm/
+  version: 0.1.6
+digest: sha256:e882fd340f5f0771748989db3c3adb0af89db197117102aea43304ad133853bb
+generated: "2024-08-28T15:00:31.995572-04:00"

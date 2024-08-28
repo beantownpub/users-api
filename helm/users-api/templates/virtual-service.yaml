@@ -1,0 +1,22 @@
+{{- if eq .Values.global.env "prod" }}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "users-api.fullname" . }}
+spec:
+  hosts:
+  - "{{ include "users-api.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local"
+  - "{{ include "users-api.fullname" . }}.prod.beantownpub.com"
+  - "{{ include "users-api.fullname" . }}.dev.beantownpub.com"
+
+  gateways:
+  - istio-ingress/web-gateway
+  - mesh # applies to all the sidecars in the mesh
+  http:
+  - route:
+    - destination:
+        port:
+          number: {{ .Values.containerPort }}
+        host: "{{ include "users-api.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local"
+        subset: {{ include "users-api.fullname" . }}
+{{- end }}

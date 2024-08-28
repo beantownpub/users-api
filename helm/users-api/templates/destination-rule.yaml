@@ -1,0 +1,13 @@
+{{- if eq .Values.global.env "prod" }}
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ include "users-api.fullname" . }}
+spec:
+  host: "{{ include "users-api.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local"
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+  subsets:
+  - name: {{ include "users-api.fullname" . }}
+{{- end }}

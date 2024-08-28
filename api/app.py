@@ -16,16 +16,16 @@ APP_NAME = __name__.split('.')[0]
 APP = Flask(APP_NAME, instance_path='/opt/app/api', root_path='/opt/app/api')
 API = Api(APP)
 PSQL = {
-    'user': os.environ.get('DB_USER'),
-    'password': os.environ.get('DB_PASSWORD'),
-    'host': os.environ.get('DB_HOST'),
-    'name': os.environ.get('DB_NAME'),
-    'port': os.environ.get('DB_PORT')
+  'user': os.environ.get('DB_USER'),
+  'password': os.environ.get('DB_PASSWORD'),
+  'host': os.environ.get('DB_HOST'),
+  'name': os.environ.get('DB_NAME'),
+  'port': os.environ.get('DB_PORT')
 }
 
 USERS_DB = [
-    f"postgresql://{PSQL['user']}:{PSQL['password']}",
-    f"{PSQL['host']}:{PSQL['port']}/{PSQL['name']}"
+  f"postgresql://{PSQL['user']}:{PSQL['password']}",
+  f"{PSQL['host']}:{PSQL['port']}/{PSQL['name']}"
 ]
 
 APP.config['SQLALCHEMY_DATABASE_URI'] = "@".join(USERS_DB)
@@ -39,17 +39,16 @@ init_routes(API)
 app_log.info('Routes initialized')
 
 
-@APP.before_first_request
-def create_default_user():
-    app_log.info('Creating default user')
-    email = os.environ.get('DEFAULT_ADMIN_EMAIL')
-    username = os.environ.get('DEFAULT_ADMIN_USER')
-    password = os.environ.get('DEFAULT_ADMIN_PASS')
-    account = Account.query.filter_by(username=username).first()
-    if not account:
-        account = Account(username=username, email=email, password_hash=generate_password_hash(password))
-        db.session.add(account)
-        db.session.commit()
-        app_log.info('User %s created', username)
-    else:
-        app_log.info('User %s already exists', username)
+with APP.app_context():
+  app_log.info('Creating default user')
+  email = os.environ.get('DEFAULT_ADMIN_EMAIL')
+  username = os.environ.get('DEFAULT_ADMIN_USER')
+  password = os.environ.get('DEFAULT_ADMIN_PASS')
+  account = Account.query.filter_by(username=username).first()
+  if not account:
+    account = Account(username=username, email=email, password_hash=generate_password_hash(password))
+    db.session.add(account)
+    db.session.commit()
+    app_log.info('User %s created', username)
+  else:
+    app_log.info('User %s already exists', username)

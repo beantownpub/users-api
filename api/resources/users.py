@@ -18,7 +18,6 @@ if __name__ != '__main__':
     app_log.handlers = gunicorn_logger.handlers
     app_log.setLevel('INFO')
     app_log.info('LOGGER STARTED')
-    # create_default_user()
 
 
 @AUTH.verify_password
@@ -72,6 +71,7 @@ class AccountAPI(Resource):
         """Verify account exists and credentials are valid"""
         body = request.get_json()
         username = body['username']
+        app_log.info("Verifying %s", username)
         account = get_account(username)
         if account:
             password = body['password']

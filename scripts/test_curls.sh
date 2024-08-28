@@ -1,9 +1,8 @@
 #!/bin/bash
 
-URL=${1}
 URL=${URL:-localhost:5045/v1/accounts}
 
-METHOD=${2}
+METHOD=${1}
 METHOD=${METHOD:-POST}
 
 AUTH=$(echo -e "${API_USERNAME}:${API_PASSWORD}" | base64)

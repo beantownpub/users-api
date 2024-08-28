@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "users-api.fullname" . }}
+spec:
+  progressDeadlineSeconds: 300
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: {{ include "users-api.fullname" . }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ include "users-api.fullname" . }}
+    spec:
+      containers:
+      - env:
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              key: db_host
+              name: app-creds
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              key: db_port
+              name: app-creds
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              key: db_name
+              name: users-api-creds
+        - name: API_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: api_user
+              name: app-creds
+        - name: API_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: api_pass
+              name: app-creds
+        - name: DEFAULT_ADMIN_EMAIL
+          valueFrom:
+            secretKeyRef:
+              key: default_admin_email
+              name: users-api-creds
+        - name: DEFAULT_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              key: default_admin_user
+              name: users-api-creds
+        - name: DEFAULT_ADMIN_PASS
+          valueFrom:
+            secretKeyRef:
+              key: default_admin_pass
+              name: users-api-creds
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              key: db_user
+              name: app-creds
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: db_pass
+              name: app-creds
+        - name: LOG_LEVEL
+          value: {{ .Values.logLevel }}
+      {{- if eq .Values.global.env "dev" }}
+        image: "{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: Never
+      {{- else }}
+        image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: Always
+      {{- end }}
+        name: users-api
+        ports:
+        - containerPort: {{ .Values.containerPort }}
+          name: tcp-users-api
+          protocol: TCP
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: false
+        livenessProbe:
+          httpGet:
+            path: /v1/healthz
+            port: {{ .Values.containerPort }}
+          failureThreshold: 3
+          periodSeconds: 10
+        resources: {}
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30

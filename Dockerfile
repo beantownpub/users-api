@@ -1,9 +1,9 @@
-FROM python:3.8-slim-buster
+FROM python:3.12.5-slim-bullseye
 
 ENV TINI_VERSION v0.18.0
 
 RUN apt-get update -y && \
-    apt-get install -y postgresql libpq-dev gcc && \
+    apt-get install -y postgresql libpq-dev libffi-dev gcc && \
     pip install -U pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
